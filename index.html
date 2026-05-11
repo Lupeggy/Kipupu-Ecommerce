@@ -725,7 +725,11 @@
                 </div>
             </div>
 
-            
+            <div class="stock-banner" id="stockBanner">
+                <div class="stock-title">限量供應</div>
+                <div class="stock-number" id="stockDisplay">100</div>
+                <div class="stock-text">剩餘數量（顆）</div>
+            </div>
 
             <div class="form-content">
                 <div class="product-section">
@@ -755,8 +759,8 @@
                 <div class="note-box">
                     <strong>限時預購活動</strong><br><br>
                     · 預購期間：即日起 ~ 5/15（五）<br>
-                    · 取貨日期：5/16（六）或 5/16（日）<br>
-                    · 限量供應，售完為止<br>
+                    · 取貨日期：3/28（六）或 3/29（日）<br>
+                    · 限量 100 顆，售完為止<br>
                     · 冷藏保存 5 天，冷凍保存 2 週
                 </div>
 
@@ -1096,120 +1100,55 @@
             
             const orderNumber = 'OG' + Date.now().toString().slice(-8);
             
-            console.log('開始更新收據資訊...');
-            console.log('訂單資料:', orderData);
+            document.getElementById('orderNumber').textContent = orderNumber;
+            document.getElementById('orderTime').textContent = orderData.timestamp;
+            document.getElementById('receiptQty').textContent = `× ${currentQty}`;
+            document.getElementById('receiptName').textContent = orderData.name;
+            document.getElementById('receiptPhone').textContent = orderData.phone;
+            document.getElementById('receiptLineId').textContent = orderData.lineId;
+            document.getElementById('receiptDate').textContent = orderData.pickupDate;
+            document.getElementById('receiptTime').textContent = orderData.pickupTime;
+            document.getElementById('receiptTotal').textContent = `NT$ ${orderData.totalPrice.toLocaleString()}`;
             
-            // 安全地更新收據資訊
-            try {
-                const setElementText = (id, text) => {
-                    const el = document.getElementById(id);
-                    if (el) {
-                        el.textContent = text;
-                        console.log(`✓ 已更新 ${id}:`, text);
-                    } else {
-                        console.warn(`✗ 找不到元素: ${id}`);
-                    }
-                };
-                
-                setElementText('orderNumber', orderNumber);
-                setElementText('orderTime', orderData.timestamp);
-                setElementText('receiptQty', `× ${currentQty}`);
-                setElementText('receiptName', orderData.name);
-                setElementText('receiptPhone', orderData.phone);
-                setElementText('receiptLineId', orderData.lineId);
-                setElementText('receiptDate', orderData.pickupDate);
-                setElementText('receiptTime', orderData.pickupTime);
-                setElementText('receiptTotal', `NT$ ${orderData.totalPrice.toLocaleString()}`);
-                
-                // 備註處理（可選）
-                if (orderData.notes) {
-                    const notesRow = document.getElementById('receiptNotesRow');
-                    const notesEl = document.getElementById('receiptNotes');
-                    if (notesRow && notesEl) {
-                        notesRow.style.display = 'flex';
-                        notesEl.textContent = orderData.notes;
-                        console.log('✓ 已更新備註');
-                    }
+            if (orderData.notes) {
+                const notesRow = document.getElementById('receiptNotesRow');
+                const notesEl = document.getElementById('receiptNotes');
+                if (notesRow && notesEl) {
+                    notesRow.style.display = 'flex';
+                    notesEl.textContent = orderData.notes;
                 }
-                
-                console.log('✓ 收據資訊更新完成');
-                
-            } catch (error) {
-                console.error('更新收據時發生錯誤:', error);
-                alert('訂單已送出，但顯示時發生問題。請截圖您的訂單資訊傳給小編確認。');
             }
             
-            // 重置數量
             currentQty = 1;
             updateDisplay();
             
-            // 切換到訂單完成頁面
-            console.log('切換到訂單完成頁面...');
-            const orderPage = document.getElementById('orderPage');
-            const thankYouPage = document.getElementById('thankYouPage');
-            
-            if (orderPage && thankYouPage) {
-                orderPage.classList.remove('active');
-                thankYouPage.classList.add('active');
-                window.scrollTo(0, 0);
-                console.log('✓ 頁面切換成功');
-            } else {
-                console.error('✗ 找不到頁面元素');
-                if (!orderPage) console.error('  - orderPage 不存在');
-                if (!thankYouPage) console.error('  - thankYouPage 不存在');
-            }
+            document.getElementById('orderPage').classList.remove('active');
+            document.getElementById('thankYouPage').classList.add('active');
+            window.scrollTo(0, 0);
             
             isSubmitting = false;
-            console.log('✓ 訂單處理完成');
         });
 
         // 倒數計時
         function updateCountdown() {
-            // 目標: 2026年5月15日 23:59:59
-            // 使用 Date 構造函數直接建立本地時間
-            const targetDate = new Date(2026, 4, 15, 23, 59, 59); // 月份從0開始,4=5月
-            const now = new Date();
-            
-            // 計算時間差（毫秒）
-            const distance = targetDate.getTime() - now.getTime();
-            
-            console.log('目標時間:', targetDate);
-            console.log('現在時間:', now);
-            console.log('時間差(秒):', Math.floor(distance / 1000));
+            const endDate = new Date(2026, 4, 15, 23, 59, 59).getTime();
+            const now = new Date().getTime();
+            const distance = endDate - now;
 
             if (distance < 0) {
-                const section = document.querySelector('.countdown-section');
-                if (section) {
-                    section.innerHTML = '<div class="countdown-label">預購已截止</div>';
-                }
+                document.querySelector('.countdown-section').innerHTML = '<div class="countdown-label">預購已截止</div>';
                 return;
             }
 
-            // 計算天、時、分、秒
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            // 更新顯示
-            const daysEl = document.getElementById('days');
-            const hoursEl = document.getElementById('hours');
-            const minutesEl = document.getElementById('minutes');
-            const secondsEl = document.getElementById('seconds');
-            
-            if (daysEl) {
-                daysEl.textContent = days;
-                console.log('更新天數:', days);
-            }
-            if (hoursEl) {
-                hoursEl.textContent = hours.toString().padStart(2, '0');
-            }
-            if (minutesEl) {
-                minutesEl.textContent = minutes.toString().padStart(2, '0');
-            }
-            if (secondsEl) {
-                secondsEl.textContent = seconds.toString().padStart(2, '0');
-            }
+            document.getElementById('days').textContent = days;
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
         }
 
         // 截圖功能
