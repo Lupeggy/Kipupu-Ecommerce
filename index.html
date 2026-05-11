@@ -1165,9 +1165,9 @@
 
         // 倒數計時
         function updateCountdown() {
-            // 目標: 2026年5月15日 23:59:59 (台灣時間 UTC+8)
-            // 建立台灣時間的目標日期
-            const targetDate = new Date('2026-05-15T23:59:59+08:00');
+            // 目標: 2026年5月15日 23:59:59
+            // 使用 Date 構造函數直接建立本地時間
+            const targetDate = new Date(2026, 4, 15, 23, 59, 59); // 月份從0開始,4=5月
             const now = new Date();
             
             // 計算時間差（毫秒）
