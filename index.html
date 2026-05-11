@@ -1096,29 +1096,71 @@
             
             const orderNumber = 'OG' + Date.now().toString().slice(-8);
             
-            document.getElementById('orderNumber').textContent = orderNumber;
-            document.getElementById('orderTime').textContent = orderData.timestamp;
-            document.getElementById('receiptQty').textContent = `× ${currentQty}`;
-            document.getElementById('receiptName').textContent = orderData.name;
-            document.getElementById('receiptPhone').textContent = orderData.phone;
-            document.getElementById('receiptLineId').textContent = orderData.lineId;
-            document.getElementById('receiptDate').textContent = orderData.pickupDate;
-            document.getElementById('receiptTime').textContent = orderData.pickupTime;
-            document.getElementById('receiptTotal').textContent = `NT$ ${orderData.totalPrice.toLocaleString()}`;
+            console.log('開始更新收據資訊...');
+            console.log('訂單資料:', orderData);
             
-            if (orderData.notes) {
-                document.getElementById('receiptNotesRow').style.display = 'flex';
-                document.getElementById('receiptNotes').textContent = orderData.notes;
+            // 安全地更新收據資訊
+            try {
+                const setElementText = (id, text) => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.textContent = text;
+                        console.log(`✓ 已更新 ${id}:`, text);
+                    } else {
+                        console.warn(`✗ 找不到元素: ${id}`);
+                    }
+                };
+                
+                setElementText('orderNumber', orderNumber);
+                setElementText('orderTime', orderData.timestamp);
+                setElementText('receiptQty', `× ${currentQty}`);
+                setElementText('receiptName', orderData.name);
+                setElementText('receiptPhone', orderData.phone);
+                setElementText('receiptLineId', orderData.lineId);
+                setElementText('receiptDate', orderData.pickupDate);
+                setElementText('receiptTime', orderData.pickupTime);
+                setElementText('receiptTotal', `NT$ ${orderData.totalPrice.toLocaleString()}`);
+                
+                // 備註處理（可選）
+                if (orderData.notes) {
+                    const notesRow = document.getElementById('receiptNotesRow');
+                    const notesEl = document.getElementById('receiptNotes');
+                    if (notesRow && notesEl) {
+                        notesRow.style.display = 'flex';
+                        notesEl.textContent = orderData.notes;
+                        console.log('✓ 已更新備註');
+                    }
+                }
+                
+                console.log('✓ 收據資訊更新完成');
+                
+            } catch (error) {
+                console.error('更新收據時發生錯誤:', error);
+                alert('訂單已送出，但顯示時發生問題。請截圖您的訂單資訊傳給小編確認。');
             }
             
+            // 重置數量
             currentQty = 1;
             updateDisplay();
             
-            document.getElementById('orderPage').classList.remove('active');
-            document.getElementById('thankYouPage').classList.add('active');
-            window.scrollTo(0, 0);
+            // 切換到訂單完成頁面
+            console.log('切換到訂單完成頁面...');
+            const orderPage = document.getElementById('orderPage');
+            const thankYouPage = document.getElementById('thankYouPage');
+            
+            if (orderPage && thankYouPage) {
+                orderPage.classList.remove('active');
+                thankYouPage.classList.add('active');
+                window.scrollTo(0, 0);
+                console.log('✓ 頁面切換成功');
+            } else {
+                console.error('✗ 找不到頁面元素');
+                if (!orderPage) console.error('  - orderPage 不存在');
+                if (!thankYouPage) console.error('  - thankYouPage 不存在');
+            }
             
             isSubmitting = false;
+            console.log('✓ 訂單處理完成');
         });
 
         // 倒數計時
