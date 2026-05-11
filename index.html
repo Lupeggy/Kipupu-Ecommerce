@@ -1083,18 +1083,30 @@
             
             const orderNumber = 'OG' + Date.now().toString().slice(-8);
             
-            document.getElementById('orderNumber').textContent = orderNumber;
-            document.getElementById('orderTime').textContent = orderData.timestamp;
-            document.getElementById('receiptQty').textContent = `× ${currentQty}`;
-            document.getElementById('receiptName').textContent = orderData.name;
-            document.getElementById('receiptPhone').textContent = orderData.phone;
-            document.getElementById('receiptLineId').textContent = orderData.lineId;
-            document.getElementById('receiptDate').textContent = orderData.pickupDate;
-            document.getElementById('receiptTime').textContent = orderData.pickupTime;
-            document.getElementById('receiptTotal').textContent = `NT$ ${orderData.totalPrice.toLocaleString()}`;
+            // 安全地更新收據資訊
+            try {
+                const setTextContent = (id, text) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = text;
+                };
+                
+                setTextContent('orderNumber', orderNumber);
+                setTextContent('orderTime', orderData.timestamp);
+                setTextContent('receiptQty', `× ${currentQty}`);
+                setTextContent('receiptName', orderData.name);
+                setTextContent('receiptPhone', orderData.phone);
+                setTextContent('receiptLineId', orderData.lineId);
+                setTextContent('receiptDate', orderData.pickupDate);
+                setTextContent('receiptTime', orderData.pickupTime);
+                setTextContent('receiptTotal', `NT$ ${orderData.totalPrice.toLocaleString()}`);
+            } catch (err) {
+                console.error('更新收據時發生錯誤:', err);
+            }
             
-            if (orderData.notes) {
-                document.getElementById('receiptNotesRow').style.display = 'flex';
+            // 備註處理（如果有備註欄位）
+            const notesRow = document.getElementById('receiptNotesRow');
+            if (orderData.notes && notesRow) {
+                notesRow.style.display = 'flex';
                 document.getElementById('receiptNotes').textContent = orderData.notes;
             }
             
